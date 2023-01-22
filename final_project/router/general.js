@@ -94,11 +94,4 @@ public_users.get('/review/:isbn', function (req, res) {
     return res.status(error.code).json(error)
   }
 });
-
-function isValidPayLoad({ username, password }) {
-
-
-
-}
-
 module.exports.general = public_users;
