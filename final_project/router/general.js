@@ -6,6 +6,7 @@ let users = require("./auth_users.js").users;
 const { getBookByisbn, getBookByauthor, getBookBytitle } = require('../services/booksService')
 const public_users = express.Router();
 const axios = require('axios')
+const http = require('http')
 
 
 
@@ -99,26 +100,32 @@ public_users.get('/review/:isbn', function (req, res) {
 
 
 const axiosAction = {
-  // getting the list of books available in the shop 
+  // getting the list of books available in the shop using callback
   getAllBooks: async () => {
-    try {
-      const { data } = await axios.get('http://localhost:4000/')
-      console.log("\n\n======================All Books======================")
-      console.log(data)
-    } catch (error) {
-      console.error(error.response ? error.response.data : error.message)
-    }
+
+    http.get('http://localhost:4000/', res => {
+      let data = ''
+      res.on('error', e => {
+        console.error(err.response ? err.response.data : err.message)
+      })
+      res.on('data', chunk => {
+        data += chunk
+      })
+
+      res.on('end', () => {
+        console.log("\n\n======================All Books======================")
+        console.log(JSON.parse(data))
+      })
+    })
   },
 
-  // getting the list of book by isbn
-  getBookByisbn: async (isbn) => {
-    try {
-      const { data } = await axios.get('http://localhost:4000/isbn/' + isbn)
+
+  // getting the list of book by isbn using promise
+  getBookByisbn: (isbn) => {
+    axios.get('http://localhost:4000/isbn/' + isbn).then(res => {
       console.log(`\n\n======================Get book by isbn: ${isbn}======================`)
-      console.log(data)
-    } catch (error) {
-      console.error(error.response ? error.response.data : error.message)
-    }
+      console.log(res.data)
+    }).catch(err => { console.error(err.response ? err.response.data : err.message) })
   },
 
   // getting the list of book by author
