@@ -86,12 +86,12 @@ public_users.get('/review/:isbn', function (req, res) {
   const { isbn } = req.params
   try {
     const book = getBookByisbn({ isbn, books })
-    if (!book.review) {
+    if (!book[isbn].reviews) {
       return res.status(404).json({ message: `Book with isbn ${isbn} dont have any reviews` })
     }
-    return res.status(300).json(book.reviews);
+    return res.status(300).json(book[isbn].reviews);
   } catch (error) {
-    return res.status(error.code).json(error)
+    return res.status(error.code || 500).json(error)
   }
 });
 module.exports.general = public_users;

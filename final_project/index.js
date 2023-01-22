@@ -13,6 +13,13 @@ app.use("/customer", session({ secret: "fingerprint_customer", resave: true, sav
 
 app.use("/customer/auth/*", function auth(req, res, next) {
     //Write the authenication mechanism here
+    if (req.session?.authorization?.username) {
+        next()
+    }
+    else {
+        console.error("Not logged in")
+        return res.status(401).json({ code: 401, message: 'You are log logged in!' })
+    }
 });
 
 const PORT = 4000;

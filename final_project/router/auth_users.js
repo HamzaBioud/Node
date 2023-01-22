@@ -1,7 +1,9 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 let books = require("./booksdb.js");
+const booksService = require('../services/booksService')
 const regd_users = express.Router();
+
 
 let users = [];
 
@@ -27,6 +29,7 @@ const authenticatedUser = (username, password) => { //returns boolean
 //only registered users can login
 regd_users.post("/login", (req, res) => {
   //Write your code here
+
 
   const { username, password } = req.body
   try {
@@ -54,7 +57,37 @@ regd_users.post("/login", (req, res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
-  return res.status(300).json({ message: "Yet to be implemented" });
+  const { isbn } = req.params
+  const { review } = req.query
+  const { username } = req.session.authorization
+  try {
+    if (!isbn) {
+      console.error("Bad request! isbn not provided")
+      return res.status(400).json({ code: 400, message: 'Bad request! isbn not provided' })
+    }
+    if (!review) {
+      console.error("Bad request! review not provided")
+      return res.status(400).json({ code: 400, message: 'Bad request! review not provided' })
+    }
+    const book = booksService.getBookByisbn({ isbn, books })
+
+    let existingReview = book[isbn].reviews
+
+    const newReview = {
+      [username]: review
+    }
+
+    books[isbn].reviews = {
+      ...existingReview,
+      ...newReview
+    }
+
+
+
+    return res.status(201).json(books[isbn])
+  } catch (error) {
+    return res.status(error.code || 500).json({ code: error.code || 500, message: error.message })
+  }
 });
 
 module.exports.authenticated = regd_users;
