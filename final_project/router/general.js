@@ -10,7 +10,29 @@ const public_users = express.Router();
 
 public_users.post("/register", (req, res) => {
   //Write your code here
-  return res.status(300).json({ message: "Yet to be implemented" });
+
+  const { username, password } = req.body
+
+  try {
+    if (!username) {
+      return res.status(400).json({ code: 400, message: "Bad request!. username not provided" })
+    }
+    if (!password || password.length < 8) {
+      return res.status(400).json({ code: 400, message: "Bad request!. Invalid password" })
+    }
+
+    if (!isValid(username)) {
+      return res.status(400).json({ code: 400, message: `A user with username ${username} already exist!` })
+    }
+
+    const newUser = { username, password }
+    users.push(newUser)
+    return res.status(201).json(newUser)
+
+  } catch (error) {
+    return res.status(500).json({ code: 500, message: error.message })
+  }
+
 });
 
 // Get the book list available in the shop
@@ -72,5 +94,11 @@ public_users.get('/review/:isbn', function (req, res) {
     return res.status(error.code).json(error)
   }
 });
+
+function isValidPayLoad({ username, password }) {
+
+
+
+}
 
 module.exports.general = public_users;
