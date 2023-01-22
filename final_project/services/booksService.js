@@ -18,7 +18,19 @@ function getBookByisbn({ isbn, books }) {
     }
 
 }
+function getBookByauthor({ author, books }) {
+    try {
+        const book = Object.fromEntries(Object.entries(books).filter(([isbnNumber, book]) => book.author == author))
+        if (Object.keys(book).length == 0) {
+            throw new Errors({ code: 404, message: `Book with author ${author} does not exit` })
+        }
+        return book
+    } catch (error) {
+        throw error
+    }
+
+}
 
 
 
-module.exports = { getBookByisbn }
+module.exports = { getBookByisbn, getBookByauthor }
