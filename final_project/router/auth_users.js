@@ -18,12 +18,16 @@ const isValid = (username) => { //returns boolean
 
 const authenticatedUser = (username, password) => { //returns boolean
   //write code to check if username and password match the one we have in records.
-  const [user] = users.filter(u => u.username == username)
-  const isValidPassword = user.password == password
-  if (isValidPassword) {
-    return true
+  try {
+    const [user] = users.filter(u => u.username == username)
+    const isValidPassword = user.password == password
+    if (isValidPassword) {
+      return true
+    }
+    return false
+  } catch (error) {
+    return false
   }
-  return false
 }
 
 //only registered users can login
@@ -82,13 +86,28 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
       ...newReview
     }
 
-
-
     return res.status(201).json(books[isbn])
   } catch (error) {
     return res.status(error.code || 500).json({ code: error.code || 500, message: error.message })
   }
 });
+
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const { isbn } = req.params
+  const { username } = req.session.authorization
+  try {
+    if (!isbn) {
+      console.error("Bad request! isbn not provided")
+      return res.status(400).json({ code: 400, message: 'Bad request! isbn not provided' })
+    }
+    delete books[isbn].reviews[username]
+    return res.status(200).json({ message: `deleted your review`, book: books[isbn] })
+
+  } catch (error) {
+    return res.status(error.code || 500).json({ code: error.code || 500, message: error.message })
+  }
+})
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
