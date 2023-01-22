@@ -43,6 +43,4 @@ function getBookBytitle({ title, books }) {
 
 }
 
-
-
 module.exports = { getBookByisbn, getBookByauthor, getBookBytitle }
