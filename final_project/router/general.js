@@ -5,6 +5,7 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const { getBookByisbn, getBookByauthor, getBookBytitle } = require('../services/booksService')
 const public_users = express.Router();
+const axios = require('axios')
 
 
 
@@ -38,7 +39,7 @@ public_users.post("/register", (req, res) => {
 // Get the book list available in the shop
 public_users.get('/', function (req, res) {
   //Write your code here
-  return res.status(300).json(books);
+  return res.status(200).json(books);
 });
 
 // Get book details based on ISBN
@@ -48,7 +49,7 @@ public_users.get('/isbn/:isbn', function (req, res) {
   const { isbn } = req.params
   try {
     const book = getBookByisbn({ isbn, books })
-    return res.status(300).json(book);
+    return res.status(200).json(book);
   } catch (error) {
     return res.status(error.code).json(error)
   }
@@ -60,7 +61,7 @@ public_users.get('/author/:author', function (req, res) {
   const { author } = req.params
   try {
     const book = getBookByauthor({ author, books })
-    return res.status(300).json(book);
+    return res.status(200).json(book);
   } catch (error) {
     return res.status(error.code).json(error)
   }
@@ -73,7 +74,7 @@ public_users.get('/title/:title', function (req, res) {
   const { title } = req.params
   try {
     const book = getBookBytitle({ title, books })
-    return res.status(300).json(book);
+    return res.status(200).json(book);
   } catch (error) {
     return res.status(error.code).json(error)
   }
@@ -89,9 +90,64 @@ public_users.get('/review/:isbn', function (req, res) {
     if (!book[isbn].reviews) {
       return res.status(404).json({ message: `Book with isbn ${isbn} dont have any reviews` })
     }
-    return res.status(300).json(book[isbn].reviews);
+    return res.status(200).json(book[isbn].reviews);
   } catch (error) {
     return res.status(error.code || 500).json(error)
   }
 });
+
+
+
+const axiosAction = {
+  // getting the list of books available in the shop 
+  getAllBooks: async () => {
+    try {
+      const { data } = await axios.get('http://localhost:4000/')
+      console.log("\n\n======================All Books======================")
+      console.log(data)
+    } catch (error) {
+      console.error(error.response ? error.response.data : error.message)
+    }
+  },
+
+  // getting the list of book by isbn
+  getBookByisbn: async (isbn) => {
+    try {
+      const { data } = await axios.get('http://localhost:4000/isbn/' + isbn)
+      console.log(`\n\n======================Get book by isbn: ${isbn}======================`)
+      console.log(data)
+    } catch (error) {
+      console.error(error.response ? error.response.data : error.message)
+    }
+  },
+
+  // getting the list of book by author
+  getBookByauthor: async (author) => {
+    try {
+      const { data } = await axios.get('http://localhost:4000/author/' + author)
+      console.log(`\n\n======================Get book by author: ${author}======================`)
+      console.log(data)
+    } catch (error) {
+      console.error(error.response ? error.response.data : error.message)
+    }
+  },
+
+  //   getting the list of book by title
+  getBookBytitle: async (title) => {
+    try {
+      const { data } = await axios.get('http://localhost:4000/title/' + title)
+      console.log(`\n\n======================Get book by title ${title}======================`)
+      console.log(data)
+    } catch (error) {
+      console.error(error.response ? error.response.data : error.message)
+    }
+  },
+}
+
+axiosAction.getAllBooks()
+axiosAction.getBookByisbn(1)
+axiosAction.getBookByauthor('Hans Christian Andersen')
+axiosAction.getBookBytitle('The Epic Of Gilgamesh')
+
+
 module.exports.general = public_users;
