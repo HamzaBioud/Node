@@ -3,7 +3,7 @@ const express = require('express');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
-const { getBookByisbn, getBookByauthor } = require('../services/booksService')
+const { getBookByisbn, getBookByauthor, getBookBytitle } = require('../services/booksService')
 const public_users = express.Router();
 
 
@@ -47,7 +47,14 @@ public_users.get('/author/:author', function (req, res) {
 // Get all books based on title
 public_users.get('/title/:title', function (req, res) {
   //Write your code here
-  return res.status(300).json({ message: "Yet to be implemented" });
+
+  const { title } = req.params
+  try {
+    const book = getBookBytitle({ title, books })
+    return res.status(300).json(book);
+  } catch (error) {
+    return res.status(error.code).json(error)
+  }
 });
 
 //  Get book review
